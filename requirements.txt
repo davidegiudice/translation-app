@@ -33,7 +33,11 @@ jsonschema-specifications==2024.10.1
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 mdurl==0.1.2
+<<<<<<< HEAD
 narwhals==1.13.5
+=======
+narwhals==1.13.2
+>>>>>>> 32250c88caf0d4086f2bdab8fe8ab74bf85194b8
 numpy==1.24.3
 openpyxl==3.1.2
 packaging==23.1
@@ -41,7 +45,11 @@ pandas==2.0.1
 Pillow==9.5.0
 proto-plus==1.25.0
 protobuf==5.28.3
+<<<<<<< HEAD
 pyarrow==12.0.0
+=======
+pyarrow==18.0.0
+>>>>>>> 32250c88caf0d4086f2bdab8fe8ab74bf85194b8
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
 PyAudio==0.2.14
