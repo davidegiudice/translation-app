@@ -12,13 +12,13 @@ import uuid
 from models import db, User, Room, TranscriptionHistory
 
 # Set Google Cloud credentials
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/Users/davidegiudice/Downloads/works-273717-7ff9fd2d7ef4.json'
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/path/to/your/google-credentials.json'
 
 app = Flask(__name__, static_url_path='/static')
-app.config['SECRET_KEY'] = 'your-secret-key'  # Change this to a secure key
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')  # Use environment variable
 
 # PostgreSQL configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://username:password@localhost:5432/translation_app'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://username:password@localhost:5432/translation_app')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
