@@ -94,5 +94,16 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="{{ url_for('static', filename='js/room.js') }}"></script>
+    <script>
+        const roomId = "{{ room.id }}";
+        console.log("Room ID:", roomId);  // Debug print
+
+        socket.emit('translate_text', {
+            text: transcript,
+            room_id: roomId,  // Make sure this is being sent
+            source_lang: sourceLang,
+            target_lang: targetLang
+        });
+    </script>
 </body>
 </html> 
