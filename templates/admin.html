@@ -50,10 +50,15 @@
                 <div class="rooms-grid">
                     {% if rooms %}
                         {% for room in rooms %}
-                        <div class="room-card" id="room-{{ room.id }}">
-                            <div class="room-header">
-                                <h3 class="room-name">{{ room.name }}</h3>
-                                <span class="room-language">{{ languages[room.source_language] }}</span>
+                        <div class="card mb-4" data-room-id="{{ room.id }}">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Room: {{ room.name }}</h5>
+                                    <button onclick="deleteRoom('{{ room.id }}')" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                                <small class="text-muted">Created: {{ room.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</small>
                             </div>
                             <div class="room-info">
                                 <span class="created-at">Created: {{ room.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>

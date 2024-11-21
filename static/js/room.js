@@ -281,6 +281,19 @@ socket.on('transcript_update', (data) => {
     }
 });
 
+socket.on('translation', function(data) {
+    const messagesDiv = document.getElementById('messages');
+    const messageHtml = `
+        <div class="message">
+            <div class="original-text">${data.original}</div>
+            <div class="translated-text">${data.translated}</div>
+            <small class="timestamp">${data.timestamp}</small>
+        </div>
+    `;
+    messagesDiv.innerHTML += messageHtml;
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
+
 // Utility function
 function decodeHtml(html) {
     const txt = document.createElement('textarea');

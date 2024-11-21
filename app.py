@@ -18,7 +18,7 @@ app = Flask(__name__, static_url_path='/static')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')  # Use environment variable
 
 # PostgreSQL configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://username:password@localhost:5432/translation_app')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://translator:L4p0can397@localhost:5432/translation_app'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize extensions
@@ -49,18 +49,24 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
-        if user and check_password_hash(user.password, request.form['password']):
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        user = User.query.filter_by(username=username).first()
+        
+        if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('admin'))
-        flash('Invalid username or password', 'error')
+        else:
+            flash('Invalid username or password', 'error')
+    
     return render_template('login.html')
 
 @app.route('/admin')
 @login_required
 def admin():
-    rooms = Room.query.filter_by(owner_id=current_user.id).order_by(Room.created_at.desc()).all()
-    return render_template('admin.html', languages=LANGUAGES, rooms=rooms)
+    rooms = Room.query.all()
+    return render_template('admin.html', rooms=rooms)
 
 @app.route('/api/rooms', methods=['POST'])
 @login_required
@@ -98,10 +104,8 @@ def room(room_id):
         flash('Unauthorized', 'error')
         return redirect(url_for('admin'))
     
-    return render_template('room.html', 
-                         room=room,
-                         room_id=room_id,
-                         languages=LANGUAGES)
+    history = TranscriptionHistory.query.filter_by(room_id=room_id).order_by(TranscriptionHistory.timestamp.desc()).all()
+    return render_template('room.html', room=room, history=history)
 
 @app.route('/view/<room_id>')
 def view_room(room_id):
@@ -174,12 +178,59 @@ def handle_transcript(data):
         print(f"Translation error: {str(e)}")
         db.session.rollback()
 
+@socketio.on('translate_text')
+def handle_translation(data):
+    room_id = data.get('room_id')
+    original_text = data.get('text')
+    source_lang = data.get('source_lang', 'auto')
+    target_lang = data.get('target_lang', 'en')
+
+    # Perform translation
+    translation = translate_text(original_text, target_lang)
+
+    # Save to database
+    with app.app_context():
+        history = TranscriptionHistory(
+            room_id=room_id,
+            original_text=original_text,
+            translated_text=translation,
+            source_language=source_lang,
+            target_language=target_lang
+        )
+        db.session.add(history)
+        db.session.commit()
+
+    # Emit the translation
+    emit('translation', {
+        'original': original_text,
+        'translated': translation,
+        'timestamp': datetime.now().strftime('%H:%M:%S')
+    }, room=room_id)
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     flash('You have been logged out successfully.', 'success')
     return redirect(url_for('login'))
+
+@app.route('/api/rooms/<room_id>', methods=['DELETE'])
+@login_required
+def delete_room(room_id):
+    try:
+        room = Room.query.get_or_404(room_id)
+        
+        # Delete associated transcription history first
+        TranscriptionHistory.query.filter_by(room_id=room.id).delete()
+        
+        # Delete the room
+        db.session.delete(room)
+        db.session.commit()
+        
+        return jsonify({'message': 'Room deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 # Create initial admin user
 def create_admin_user():

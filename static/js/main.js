@@ -55,28 +55,33 @@ async function handleRoomCreation(e) {
     }
 }
 
-async function deleteRoom(roomId) {
-    if (!confirm('Are you sure you want to delete this room?')) return;
-    
-    try {
-        const response = await fetch(`/api/rooms/${roomId}`, {
-            method: 'DELETE'
-        });
-        
-        const data = await response.json();
-        if (data.success) {
-            // Remove room card from DOM
-            const roomElement = document.getElementById(`room-${roomId}`);
+function deleteRoom(roomId) {
+    if (confirm('Are you sure you want to delete this room?')) {
+        fetch(`/api/rooms/${roomId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Remove the room element from the DOM
+            const roomElement = document.querySelector(`[data-room-id="${roomId}"]`);
             if (roomElement) {
                 roomElement.remove();
-                showNotification('Room deleted successfully', 'success');
             }
-        } else {
-            showNotification('Failed to delete room', 'error');
-        }
-    } catch (error) {
-        console.error('Error deleting room:', error);
-        showNotification('Error deleting room', 'error');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to delete room. Please try again.');
+        });
     }
 }
 
