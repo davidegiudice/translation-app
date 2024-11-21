@@ -10,6 +10,7 @@ from google.cloud import translate_v2 as translate
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid
 from models import db, User, Room, TranscriptionHistory
+from flask_cors import CORS
 
 # Set Google Cloud credentials
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = '/path/to/your/google-credentials.json'

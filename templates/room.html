@@ -92,46 +92,12 @@
 
     <input type="hidden" id="room_id" value="{{ room_id }}">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
     <script>
         const roomId = "{{ room.id }}";
-        const sourceLang = "auto";  // Default source language
-        const targetLang = "en";    // Default target language
-        
-        // Initialize Socket.IO with the correct path
-        const socket = io({
-            path: '/socket.io',
-            transports: ['websocket'],
-            upgrade: false
-        });
-
-        // Join the room
-        socket.emit('join', { room: roomId });
-
-        // Handle translation
-        function sendTranslation(transcript) {
-            socket.emit('translate_text', {
-                text: transcript,
-                room_id: roomId,
-                source_lang: sourceLang,
-                target_lang: targetLang
-            });
-        }
-
-        // Handle incoming translations
-        socket.on('translation', function(data) {
-            const messagesDiv = document.getElementById('messages');
-            const messageHtml = `
-                <div class="message">
-                    <div class="original-text">${data.original}</div>
-                    <div class="translated-text">${data.translated}</div>
-                    <small class="timestamp">${data.timestamp}</small>
-                </div>
-            `;
-            messagesDiv.innerHTML += messageHtml;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        });
+        const sourceLang = "auto";
+        const targetLang = "en";
     </script>
+
+    <script src="{{ url_for('static', filename='js/room.js') }}"></script>
 </body>
 </html> 

@@ -6,7 +6,11 @@ let interimTimeout = null;
 const PAUSE_THRESHOLD = 1000;
 
 // Initialize socket connection
-const socket = io();
+const socket = io({
+    path: '/socket.io',
+    transports: ['websocket'],
+    upgrade: false
+});
 const room_id = document.getElementById('room_id').value;
 
 document.addEventListener('DOMContentLoaded', function() {
