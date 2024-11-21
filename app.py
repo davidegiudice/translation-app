@@ -101,7 +101,24 @@ def create_room():
 def room(room_id):
     room = Room.query.get_or_404(room_id)
     history = TranscriptionHistory.query.filter_by(room_id=room_id).order_by(TranscriptionHistory.timestamp.desc()).all()
-    return render_template('room.html', room=room, history=history, languages=LANGUAGES)
+    languages = {
+        'en': 'English',
+        'es': 'Spanish',
+        'fr': 'French',
+        'de': 'German',
+        'it': 'Italian',
+        'pt': 'Portuguese',
+        'nl': 'Dutch',
+        'pl': 'Polish',
+        'ru': 'Russian',
+        'ja': 'Japanese',
+        'ko': 'Korean',
+        'zh': 'Chinese',
+        'ar': 'Arabic',
+        'hi': 'Hindi',
+        'tr': 'Turkish'
+    }
+    return render_template('room.html', room=room, history=history, languages=languages)
 
 @app.route('/view/<room_id>')
 def view_room(room_id):
