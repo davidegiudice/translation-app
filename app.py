@@ -66,7 +66,24 @@ def login():
 @login_required
 def admin():
     rooms = Room.query.all()
-    return render_template('admin.html', rooms=rooms)
+    languages = {
+        'en': 'English',
+        'es': 'Spanish',
+        'fr': 'French',
+        'de': 'German',
+        'it': 'Italian',
+        'pt': 'Portuguese',
+        'nl': 'Dutch',
+        'pl': 'Polish',
+        'ru': 'Russian',
+        'ja': 'Japanese',
+        'ko': 'Korean',
+        'zh': 'Chinese',
+        'ar': 'Arabic',
+        'hi': 'Hindi',
+        'tr': 'Turkish'
+    }
+    return render_template('admin.html', rooms=rooms, languages=languages)
 
 @app.route('/api/rooms', methods=['POST'])
 @login_required
