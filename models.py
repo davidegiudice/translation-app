@@ -24,8 +24,7 @@ class Room(db.Model):
 
 class TranscriptionHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    room_id = db.Column(db.String(36), db.ForeignKey('room.id', ondelete='CASCADE'), 
-                       nullable=False)
+    room_id = db.Column(db.String(36), db.ForeignKey('room.id', ondelete='CASCADE'), nullable=False)
     original_text = db.Column(db.Text, nullable=False)
     translations = db.Column(db.JSON)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow) 

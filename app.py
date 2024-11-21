@@ -206,12 +206,16 @@ def handle_translation(data):
         history = TranscriptionHistory(
             room_id=room_id,
             original_text=original_text,
-            translated_text=translation,
-            source_language=source_lang,
-            target_language=target_lang
+            translations={
+                target_lang: translation,
+                'source_lang': source_lang,
+                'target_lang': target_lang
+            },
+            timestamp=datetime.utcnow()
         )
         db.session.add(history)
         db.session.commit()
+        print(f"Saved message to history: {original_text} -> {translation}")  # Debug print
 
     # Emit the translation
     emit('translation', {

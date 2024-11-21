@@ -69,13 +69,17 @@
             <div class="chat-container">
                 <!-- Chat History -->
                 <div id="chat-history" class="chat-history">
-                    {% for message in history %}
-                        <div class="message">
-                            <div class="original-text">{{ message.original_text }}</div>
-                            <div class="translated-text">{{ message.translated_text }}</div>
-                            <small class="timestamp">{{ message.timestamp.strftime('%H:%M:%S') }}</small>
-                        </div>
-                    {% endfor %}
+                    {% if history %}
+                        {% for message in history %}
+                            <div class="message">
+                                <div class="original-text">{{ message.original_text }}</div>
+                                <div class="translated-text">{{ message.translations.get(message.translations.get('target_lang', 'en')) }}</div>
+                                <small class="timestamp">{{ message.timestamp.strftime('%H:%M:%S') }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>No chat history available.</p>
+                    {% endif %}
                 </div>
                 
                 <!-- New messages will be added here -->
