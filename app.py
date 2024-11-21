@@ -24,7 +24,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='gevent')
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -128,18 +128,15 @@ def view_room(room_id):
                          room_id=room_id,
                          languages=LANGUAGES)
 
-@socketio.on('join_room')
-def on_join_room(data):
-    room_id = data['room']
-    join_room(room_id)
-    room = Room.query.get(room_id)
-    if room:
-        history = [{
-            'timestamp': h.timestamp.strftime('%H:%M:%S'),
-            'original': h.original_text,
-            'translations': h.translations
-        } for h in room.history]
-        emit('room_history', {'history': history})
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    print(f'Client joined room: {room}')
 
 @socketio.on('transcript')
 def handle_transcript(data):
@@ -199,27 +196,25 @@ def handle_translation(data):
         source_lang = data.get('source_lang', 'auto')
         target_lang = data.get('target_lang', 'en')
 
-        print(f"Received translation request: {data}")  # Debug print
+        print(f"Received translation request: {data}")
 
         # Perform translation
         translation = translate_text(original_text, target_lang)
-        print(f"Translation result: {translation}")  # Debug print
 
         # Save to database
-        with app.app_context():
-            history = TranscriptionHistory(
-                room_id=room_id,
-                original_text=original_text,
-                translations={
-                    'translated': translation,
-                    'source_lang': source_lang,
-                    'target_lang': target_lang
-                },
-                timestamp=datetime.utcnow()
-            )
-            db.session.add(history)
-            db.session.commit()
-            print(f"Successfully saved to history: {original_text} -> {translation}")  # Debug print
+        history = TranscriptionHistory(
+            room_id=room_id,
+            original_text=original_text,
+            translations={
+                'translated': translation,
+                'source_lang': source_lang,
+                'target_lang': target_lang
+            },
+            timestamp=datetime.utcnow()
+        )
+        db.session.add(history)
+        db.session.commit()
+        print(f"Saved to history: {original_text} -> {translation}")
 
         # Emit the translation
         emit('translation', {
@@ -229,9 +224,9 @@ def handle_translation(data):
         }, room=room_id)
 
     except Exception as e:
-        print(f"Error in handle_translation: {str(e)}")  # Debug print
+        print(f"Error in handle_translation: {str(e)}")
         import traceback
-        print(traceback.format_exc())  # Print full error traceback
+        print(traceback.format_exc())
 
 @app.route('/logout')
 @login_required

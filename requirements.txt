@@ -78,3 +78,5 @@ Werkzeug==3.0.2
 wsproto==1.2.0
 gunicorn==23.0.0
 eventlet==0.38.0
+gevent-websocket>=0.10.1
+gevent>=21.1.2
